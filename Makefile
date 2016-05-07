@@ -15,7 +15,7 @@ endif
 
 # COMMON CONFIGURATION #
 
-NAME := FBI
+NAME := Luma Locale Switcher
 
 BUILD_DIR := build
 OUTPUT_DIR := output
@@ -35,10 +35,10 @@ RUN_FLAGS :=
 # 3DS CONFIGURATION #
 
 TITLE := $(NAME)
-DESCRIPTION := Open source CIA installer.
-AUTHOR := Steveice10
-PRODUCT_CODE := CTR-P-CFBI
-UNIQUE_ID := 0xF8001
+DESCRIPTION := Locale Switcher
+AUTHOR := Possum
+PRODUCT_CODE := LumaLocale
+UNIQUE_ID := 0xA0CA1
 
 SYSTEM_MODE := 64MB
 SYSTEM_MODE_EXT := Legacy
@@ -47,7 +47,7 @@ ICON_FLAGS :=
 
 ROMFS_DIR := romfs
 BANNER_AUDIO := meta/audio.wav
-BANNER_IMAGE := meta/banner.cgfx
+BANNER_IMAGE := meta/banner.png
 ICON := meta/icon.png
 
 # INTERNAL #
