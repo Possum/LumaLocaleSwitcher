@@ -1,5 +1,8 @@
 .idea
 CMakeLists.txt
 
+# Vim swap files
+.*.sw*
+
 build
 output
