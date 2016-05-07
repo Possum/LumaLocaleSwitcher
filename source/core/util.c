@@ -4,9 +4,9 @@
 #include <string.h>
 
 #include <3ds.h>
+#include <3ds/services/fs.h>
 
 #include "util.h"
-#include "../ui/error.h"
 #include "../ui/section/task/task.h"
 
 extern void cleanup();
@@ -125,6 +125,137 @@ void util_panic(const char* s, ...) {
     exit(1);
 }
 
+bool util_is_dir(FS_Archive* archive, const char* path) {
+    Result res = 0;
+
+    FS_Path* fsPath = util_make_path_utf8(path);
+    if(fsPath != NULL) {
+        Handle dirHandle = 0;
+        if(R_SUCCEEDED(res = FSUSER_OpenDirectory(&dirHandle, *archive, *fsPath))) {
+            FSDIR_Close(dirHandle);
+        }
+
+        util_free_path_utf8(fsPath);
+    } else {
+        res = R_FBI_OUT_OF_MEMORY;
+    }
+
+    return R_SUCCEEDED(res);
+}
+
+typedef struct {
+    u32* count;
+    void* data;
+    bool (*filter)(void* data, FS_Archive* archive, const char* path, u32 attributes);
+} count_data;
+
+typedef struct {
+    char*** contents;
+    u32 index;
+    void* data;
+    bool (*filter)(void* data, FS_Archive* archive, const char* path, u32 attributes);
+} populate_data;
+
+static bool util_populate_contents_filter(void* data, FS_Archive* archive, const char* path, u32 attributes) {
+    populate_data* populateData = (populate_data*) data;
+    if(populateData->filter != NULL) {
+        return populateData->filter(populateData->data, archive, path, attributes);
+    }
+
+    return true;
+}
+
+static void util_populate_contents_process(void* data, FS_Archive* archive, const char* path, u32 attributes) {
+    u32 currPathSize = strlen(path) + 1;
+    char* currPath = (char*) calloc(1, currPathSize);
+    if(currPath == NULL) {
+        return;
+    }
+
+    strncpy(currPath, path, currPathSize);
+
+    populate_data* populateData = (populate_data*) data;
+    (*populateData->contents)[populateData->index++] = currPath;
+}
+
+void util_get_path_file(char* out, const char* path, u32 size) {
+    const char* start = NULL;
+    const char* end = NULL;
+    const char* curr = path - 1;
+    while((curr = strchr(curr + 1, '/')) != NULL) {
+        start = end != NULL ? end : path;
+        end = curr;
+    }
+
+    if(end - start == 0) {
+        strncpy(out, "/", size);
+    } else {
+        u32 terminatorPos = end - start - 1 < size - 1 ? end - start - 1 : size - 1;
+        strncpy(out, start + 1, terminatorPos);
+        out[terminatorPos] = '\0';
+    }
+}
+
+void util_get_parent_path(char* out, const char* path, u32 size) {
+    size_t pathLen = strlen(path);
+
+    const char* start = NULL;
+    const char* end = NULL;
+    const char* curr = path - 1;
+    while((curr = strchr(curr + 1, '/')) != NULL && (start == NULL || curr != path + pathLen - 1)) {
+        start = end != NULL ? end : path;
+        end = curr;
+    }
+
+    u32 terminatorPos = end - path + 1 < size - 1 ? end - path + 1 : size - 1;
+    strncpy(out, path, terminatorPos);
+    out[terminatorPos] = '\0';
+}
+
+// Returns whether directory exists
+Result util_get_locale_path(char* out, size_t size) {
+    FILE* config_file = util_open_resource("/locales.conf");
+    if (config_file != NULL) {
+        char *buffer = (char*) calloc(size, sizeof(char));
+
+        while(fgets(buffer, size, config_file) != NULL) {
+            char* newline = strchr(buffer, '\n');
+            buffer[size-1] = '\0';
+            if(newline != NULL) {
+                *newline = '\0';
+            }
+            strncpy(out, buffer, size);
+            out[strlen(buffer)] = '\0';
+            free(buffer);
+            return 1;
+        }
+    }
+
+    // Default to Luma
+    char* fallback = "/luma/locales/";
+    strncpy(out, fallback, strlen(fallback));
+    out[strlen(fallback)] = '\0';
+    return 0;
+}
+
+Result util_ensure_dir(FS_Archive* archive, const char* path) {
+    Result res = 0;
+
+    if(!util_is_dir(archive, path)) {
+        FS_Path* fsPath = util_make_path_utf8(path);
+        if(fsPath != NULL) {
+            FSUSER_DeleteFile(*archive, *fsPath);
+            res = FSUSER_CreateDirectory(*archive, *fsPath, 0);
+
+            util_free_path_utf8(fsPath);
+        } else {
+            res = R_FBI_OUT_OF_MEMORY;
+        }
+    }
+
+    return res;
+}
+
 FS_Path* util_make_path_utf8(const char* path) {
     size_t len = strlen(path);
 
@@ -153,85 +284,41 @@ void util_free_path_utf8(FS_Path* path) {
     free(path);
 }
 
-FS_Path util_make_binary_path(const void* data, u32 size) {
-    FS_Path path = {PATH_BINARY, size, data};
-    return path;
+int util_compare_u32(const void* e1, const void* e2) {
+    u32 id1 = *(u32*) e1;
+    u32 id2 = *(u32*) e2;
+
+    return id1 > id2 ? 1 : id1 < id2 ? -1 : 0;
 }
 
-bool util_is_dir(FS_Archive archive, const char* path) {
-    Result res = 0;
+int util_compare_u64(const void* e1, const void* e2) {
+    u64 id1 = *(u64*) e1;
+    u64 id2 = *(u64*) e2;
 
-    FS_Path* fsPath = util_make_path_utf8(path);
-    if(fsPath != NULL) {
-        Handle dirHandle = 0;
-        if(R_SUCCEEDED(res = FSUSER_OpenDirectory(&dirHandle, archive, *fsPath))) {
-            FSDIR_Close(dirHandle);
-        }
+    return id1 > id2 ? 1 : id1 < id2 ? -1 : 0;
+}
 
-        util_free_path_utf8(fsPath);
+FS_Archive* util_get_sdmc_archive() {
+    FS_Archive *sdmc_archive = (FS_Archive*) calloc(1, sizeof(FS_Archive));
+    sdmc_archive->id = ARCHIVE_SDMC;
+    sdmc_archive->lowPath.type = PATH_BINARY;
+    sdmc_archive->lowPath.size = 0;
+    sdmc_archive->lowPath.data = (void*) "";
+    return sdmc_archive;
+}
+
+FILE* util_open_resource(const char* path) {
+    u32 realPathSize = strlen(path) + 16;
+    char realPath[realPathSize];
+
+    snprintf(realPath, realPathSize, "sdmc:/%s", path);
+    FILE* fd = fopen(realPath, "rb");
+
+    if(fd != NULL) {
+        return fd;
     } else {
-        res = R_FBI_OUT_OF_MEMORY;
+        snprintf(realPath, realPathSize, "romfs:/%s", path);
+
+        return fopen(realPath, "rb");
     }
-
-    return R_SUCCEEDED(res);
-}
-
-Result util_ensure_dir(FS_Archive archive, const char* path) {
-    Result res = 0;
-
-    FS_Path* fsPath = util_make_path_utf8(path);
-    if(fsPath != NULL) {
-        Handle dirHandle = 0;
-        if(R_SUCCEEDED(FSUSER_OpenDirectory(&dirHandle, archive, *fsPath))) {
-            FSDIR_Close(dirHandle);
-        } else {
-            FSUSER_DeleteFile(archive, *fsPath);
-            res = FSUSER_CreateDirectory(archive, *fsPath, 0);
-        }
-
-        util_free_path_utf8(fsPath);
-    } else {
-        res = R_FBI_OUT_OF_MEMORY;
-    }
-
-    return res;
-}
-
-void util_get_path_file(char* out, const char* path, u32 size) {
-    const char* start = NULL;
-    const char* end = NULL;
-    const char* curr = path - 1;
-    while((curr = strchr(curr + 1, '/')) != NULL) {
-        start = end != NULL ? end : path;
-        end = curr;
-    }
-
-    if(end != path + strlen(path) - 1) {
-        start = end;
-        end = path + strlen(path);
-    }
-
-    if(end - start == 0) {
-        strncpy(out, "/", size);
-    } else {
-        u32 terminatorPos = end - start - 1 < size - 1 ? end - start - 1 : size - 1;
-        strncpy(out, start + 1, terminatorPos);
-        out[terminatorPos] = '\0';
-    }
-}
-
-void util_get_parent_path(char* out, const char* path, u32 size) {
-    size_t pathLen = strlen(path);
-
-    const char* start = NULL;
-    const char* end = NULL;
-    const char* curr = path - 1;
-    while((curr = strchr(curr + 1, '/')) != NULL && (start == NULL || curr != path + pathLen - 1)) {
-        start = end != NULL ? end : path;
-        end = curr;
-    }
-
-    u32 terminatorPos = end - path + 1 < size - 1 ? end - path + 1 : size - 1;
-    strncpy(out, path, terminatorPos);
-    out[terminatorPos] = '\0';
 }

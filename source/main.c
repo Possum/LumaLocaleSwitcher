@@ -6,16 +6,13 @@
 #include "core/util.h"
 #include "svchax/svchax.h"
 #include "ui/mainmenu.h"
-#include "ui/ui.h"
-#include "ui/section/action/clipboard.h"
 #include "ui/section/task/task.h"
 
 static void* soc_buffer;
 
 void cleanup() {
-    clipboard_clear();
+    task_quit_all();
 
-    task_exit();
     ui_exit();
     screen_exit();
 
@@ -70,7 +67,6 @@ int main(int argc, const char* argv[]) {
 
     screen_init();
     ui_init();
-    task_init();
 
     mainmenu_open();
 

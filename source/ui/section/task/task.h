@@ -1,19 +1,19 @@
 #pragma once
 
-#define FILE_NAME_MAX 512
-#define FILE_PATH_MAX 512
+#include <sys/syslimits.h>
+#include <stdio.h>
 
-typedef struct linked_list_s linked_list;
-typedef struct list_item_s list_item;
+#include "../../list.h"
+#include "../../../locale.h"
 
-typedef struct meta_info_s {
+typedef struct {
     char shortDescription[0x100];
     char longDescription[0x200];
     char publisher[0x100];
     u32 texture;
 } meta_info;
 
-typedef struct title_info_s {
+typedef struct {
     FS_MediaType mediaType;
     u64 titleId;
     char productCode[0x10];
@@ -22,19 +22,25 @@ typedef struct title_info_s {
     bool twl;
     bool hasMeta;
     meta_info meta;
+    Locale* locale;
 } title_info;
 
-typedef struct pending_title_info_s {
+typedef struct {
+    FILE* config_file;
+    char path[PATH_MAX];
+} config_info; // TODO Why is this defined here?
+
+typedef struct {
     FS_MediaType mediaType;
     u64 titleId;
     u16 version;
 } pending_title_info;
 
-typedef struct ticket_info_s {
+typedef struct {
     u64 titleId;
 } ticket_info;
 
-typedef struct ext_save_data_info_s {
+typedef struct {
     FS_MediaType mediaType;
     u64 extSaveDataId;
     bool shared;
@@ -42,11 +48,11 @@ typedef struct ext_save_data_info_s {
     meta_info meta;
 } ext_save_data_info;
 
-typedef struct system_save_data_info_s {
+typedef struct {
     u32 systemSaveDataId;
 } system_save_data_info;
 
-typedef struct cia_info_s {
+typedef struct {
     u64 titleId;
     u16 version;
     u64 installedSize;
@@ -54,46 +60,44 @@ typedef struct cia_info_s {
     meta_info meta;
 } cia_info;
 
-typedef struct file_info_s {
-    FS_Archive archive;
-    char name[FILE_NAME_MAX];
-    char path[FILE_PATH_MAX];
+typedef struct {
+    FS_Archive* archive;
+    char name[NAME_MAX];
+    char path[PATH_MAX];
     bool isDirectory;
-
     u64 size;
-    bool isCia;
-    cia_info ciaInfo;
-    bool isTicket;
-    ticket_info ticketInfo;
 
     bool containsCias;
+    bool isCia;
+    cia_info ciaInfo;
+
     bool containsTickets;
+    bool isTicket;
+    ticket_info ticketInfo;
 } file_info;
 
-typedef struct {
-    u16* buffer;
-    s16 width;
-    s16 height;
+#define R_FBI_CANCELLED MAKERESULT(RL_PERMANENT, RS_CANCELED, RM_APPLICATION, 1)
+#define R_FBI_ERRNO MAKERESULT(RL_PERMANENT, RS_INTERNAL, RM_APPLICATION, 2)
+#define R_FBI_HTTP_RESPONSE_CODE MAKERESULT(RL_PERMANENT, RS_INTERNAL, RM_APPLICATION, 3)
+#define R_FBI_WRONG_SYSTEM MAKERESULT(RL_PERMANENT, RS_NOTSUPPORTED, RM_APPLICATION, 4)
 
-    Handle mutex;
+#define R_FBI_OUT_OF_MEMORY MAKERESULT(RL_FATAL, RS_OUTOFRESOURCE, RM_APPLICATION, RD_OUT_OF_MEMORY)
 
-    volatile bool finished;
-    Result result;
-    Handle cancelEvent;
-} capture_cam_data;
-
-typedef enum data_op_e {
+typedef enum {
     DATAOP_COPY,
     DATAOP_DELETE
-} data_op;
+} DataOp;
 
-typedef struct data_op_info_s {
+typedef struct {
     void* data;
 
-    data_op op;
+    DataOp op;
 
     // Copy
     bool copyEmpty;
+
+    bool finished;
+    bool premature;
 
     u32 processed;
     u32 total;
@@ -120,97 +124,29 @@ typedef struct data_op_info_s {
 
     // Errors
     bool (*error)(void* data, u32 index, Result res);
+} data_op_info;
 
-    // General
-    volatile bool finished;
-    Result result;
-    Handle cancelEvent;
-} data_op_data;
-
-typedef struct {
-    linked_list* items;
-
-    volatile bool finished;
-    Result result;
-    Handle cancelEvent;
-} populate_ext_save_data_data;
-
-typedef struct {
-    linked_list* items;
-
-    file_info* base;
-
-    bool recursive;
-    bool includeBase;
-    bool dirsFirst;
-
-    volatile bool finished;
-    Result result;
-    Handle cancelEvent;
-} populate_files_data;
-
-typedef struct {
-    linked_list* items;
-
-    volatile bool finished;
-    Result result;
-    Handle cancelEvent;
-} populate_pending_titles_data;
-
-typedef struct {
-    linked_list* items;
-
-    volatile bool finished;
-    Result result;
-    Handle cancelEvent;
-} populate_system_save_data_data;
-
-typedef struct {
-    linked_list* items;
-
-    volatile bool finished;
-    Result result;
-    Handle cancelEvent;
-} populate_tickets_data;
-
-typedef struct {
-    linked_list* items;
-
-    volatile bool finished;
-    Result result;
-    Handle cancelEvent;
-} populate_titles_data;
-
-void task_init();
-void task_exit();
 bool task_is_quit_all();
-Handle task_get_pause_event();
+void task_quit_all();
 
-Result task_capture_cam(capture_cam_data* data);
+Handle task_capture_cam(Handle* mutex, u16* buffer, s16 width, s16 height);
 
-Result task_data_op(data_op_data* data);
+Handle task_data_op(data_op_info* info);
 
-void task_free_ext_save_data(list_item* item);
-void task_clear_ext_save_data(linked_list* items);
-Result task_populate_ext_save_data(populate_ext_save_data_data* data);
+void task_clear_ext_save_data(list_item* items, u32* count);
+Handle task_populate_ext_save_data(list_item* items, u32* count, u32 max);
 
-void task_free_file(list_item* item);
-void task_clear_files(linked_list* items);
-Result task_create_file_item(list_item** out, FS_Archive archive, const char* path);
-Result task_populate_files(populate_files_data* data);
+void task_clear_files(list_item* items, u32* count);
+Handle task_populate_files(list_item* items, u32* count, u32 max, file_info* dir);
 
-void task_free_pending_title(list_item* item);
-void task_clear_pending_titles(linked_list* items);
-Result task_populate_pending_titles(populate_pending_titles_data* data);
+void task_clear_pending_titles(list_item* items, u32* count);
+Handle task_populate_pending_titles(list_item* items, u32* count, u32 max);
 
-void task_free_system_save_data(list_item* item);
-void task_clear_system_save_data(linked_list* items);
-Result task_populate_system_save_data(populate_system_save_data_data* data);
+void task_clear_system_save_data(list_item* items, u32* count);
+Handle task_populate_system_save_data(list_item* items, u32* count, u32 max);
 
-void task_free_ticket(list_item* item);
-void task_clear_tickets(linked_list* items);
-Result task_populate_tickets(populate_tickets_data* data);
+void task_clear_tickets(list_item* items, u32* count);
+Handle task_populate_tickets(list_item* items, u32* count, u32 max);
 
-void task_free_title(list_item* item);
-void task_clear_titles(linked_list* items);
-Result task_populate_titles(populate_titles_data* data);
+void task_clear_titles(list_item* items, u32* count);
+Handle task_populate_titles(list_item* items, u32* count, u32 max);

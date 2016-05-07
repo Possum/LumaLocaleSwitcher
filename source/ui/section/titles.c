@@ -3,39 +3,65 @@
 
 #include <3ds.h>
 
-#include "section.h"
 #include "action/action.h"
-#include "task/task.h"
+#include "section.h"
 #include "../error.h"
-#include "../list.h"
-#include "../ui.h"
-#include "../../core/linkedlist.h"
 #include "../../core/screen.h"
 
-static list_item launch_title = {"Launch Title", COLOR_TEXT, action_launch_title};
-static list_item delete_title = {"Delete Title", COLOR_TEXT, action_delete_title};
-static list_item extract_smdh = {"Extract SMDH", COLOR_TEXT, action_extract_smdh};
-static list_item browse_save_data = {"Browse Save Data", COLOR_TEXT, action_browse_title_save_data};
-static list_item import_secure_value = {"Import Secure Value", COLOR_TEXT, action_import_secure_value};
-static list_item export_secure_value = {"Export Secure Value", COLOR_TEXT, action_export_secure_value};
-static list_item delete_secure_value = {"Delete Secure Value", COLOR_TEXT, action_delete_secure_value};
+#define TITLES_MAX 1024
 
 typedef struct {
-    populate_titles_data populateData;
-
+    list_item items[TITLES_MAX];
+    u32 count;
+    Handle cancelEvent;
     bool populated;
 } titles_data;
 
+
+#define TITLES_ACTION_COUNT 3
+
+static u32 titles_action_count = TITLES_ACTION_COUNT;
+static list_item titles_action_items[TITLES_ACTION_COUNT] = {
+        {"Change Region", COLOR_TEXT, action_change_region},
+        {"Change Language", COLOR_TEXT, action_change_language},
+        {"Use System Default", COLOR_TEXT, action_use_system_default},
+};
+
+/*
+#define CARD_TITLES_ACTION_COUNT 2
+
+static u32 card_titles_action_count = CARD_TITLES_ACTION_COUNT;
+static list_item card_titles_action_items[CARD_TITLES_ACTION_COUNT] = {
+        {"Launch Title", COLOR_TEXT, action_launch_title},
+        {"Browse Save Data", COLOR_TEXT, action_browse_title_save_data},
+};
+
+#define DSIWARE_TITLES_ACTION_COUNT 2
+
+static u32 dsiware_titles_action_count = DSIWARE_TITLES_ACTION_COUNT;
+static list_item dsiware_titles_action_items[DSIWARE_TITLES_ACTION_COUNT] = {
+        {"Launch Title", COLOR_TEXT, action_launch_title},
+        {"Delete Title", COLOR_TEXT, action_delete_title},
+};
+
+#define DSIWARE_CARD_TITLES_ACTION_COUNT 1
+
+static u32 dsiware_card_titles_action_count = DSIWARE_CARD_TITLES_ACTION_COUNT;
+static list_item dsiware_card_titles_action_items[DSIWARE_CARD_TITLES_ACTION_COUNT] = {
+        {"Launch Title", COLOR_TEXT, action_launch_title},
+};
+*/
+
 typedef struct {
-    linked_list* items;
-    list_item* selected;
+    title_info* info;
+    bool* populated;
 } titles_action_data;
 
 static void titles_action_draw_top(ui_view* view, void* data, float x1, float y1, float x2, float y2, list_item* selected) {
-    ui_draw_title_info(view, ((titles_action_data*) data)->selected->data, x1, y1, x2, y2);
+    ui_draw_title_info(view, ((titles_action_data*) data)->info, x1, y1, x2, y2);
 }
 
-static void titles_action_update(ui_view* view, void* data, linked_list* items, list_item* selected, bool selectedTouched) {
+static void titles_action_update(ui_view* view, void* data, list_item** items, u32** itemCount, list_item* selected, bool selectedTouched) {
     titles_action_data* actionData = (titles_action_data*) data;
 
     if(hidKeysDown() & KEY_B) {
@@ -48,41 +74,20 @@ static void titles_action_update(ui_view* view, void* data, linked_list* items, 
     }
 
     if(selected != NULL && selected->data != NULL && (selectedTouched || (hidKeysDown() & KEY_A))) {
-        void(*action)(linked_list*, list_item*) = (void(*)(linked_list*, list_item*)) selected->data;
+        void(*action)(title_info*, bool*) = (void(*)(title_info*, bool*)) selected->data;
 
-        ui_pop();
-        list_destroy(view);
-
-        action(actionData->items, actionData->selected);
-
-        free(data);
+        action(actionData->info, actionData->populated);
 
         return;
     }
 
-    if(linked_list_size(items) == 0) {
-        linked_list_add(items, &launch_title);
-
-        title_info* info = (title_info*) actionData->selected->data;
-
-        if(info->mediaType != MEDIATYPE_GAME_CARD) {
-            linked_list_add(items, &delete_title);
-        }
-
-        if(!info->twl) {
-            linked_list_add(items, &extract_smdh);
-            linked_list_add(items, &browse_save_data);
-
-            if(info->mediaType != MEDIATYPE_GAME_CARD) {
-                linked_list_add(items, &import_secure_value);
-                linked_list_add(items, &export_secure_value);
-                linked_list_add(items, &delete_secure_value);
-            }
-        }
+    if(*itemCount != &titles_action_count || *items != titles_action_items) {
+        *itemCount = &titles_action_count;
+        *items = titles_action_items;
     }
 }
 
-static void titles_action_open(linked_list* items, list_item* selected) {
+static void titles_action_open(title_info* info, bool* populated) {
     titles_action_data* data = (titles_action_data*) calloc(1, sizeof(titles_action_data));
     if(data == NULL) {
         error_display(NULL, NULL, NULL, "Failed to allocate titles action data.");
@@ -90,8 +95,8 @@ static void titles_action_open(linked_list* items, list_item* selected) {
         return;
     }
 
-    data->items = items;
-    data->selected = selected;
+    data->info = info;
+    data->populated = populated;
 
     list_display("Title Action", "A: Select, B: Return", data, titles_action_update, titles_action_draw_top);
 }
@@ -102,52 +107,49 @@ static void titles_draw_top(ui_view* view, void* data, float x1, float y1, float
     }
 }
 
-static void titles_update(ui_view* view, void* data, linked_list* items, list_item* selected, bool selectedTouched) {
+static void titles_update(ui_view* view, void* data, list_item** items, u32** itemCount, list_item* selected, bool selectedTouched) {
     titles_data* listData = (titles_data*) data;
 
     if(hidKeysDown() & KEY_B) {
-        if(!listData->populateData.finished) {
-            svcSignalEvent(listData->populateData.cancelEvent);
-            while(!listData->populateData.finished) {
+        if(listData->cancelEvent != 0) {
+            svcSignalEvent(listData->cancelEvent);
+            while(svcWaitSynchronization(listData->cancelEvent, 0) == 0) {
                 svcSleepThread(1000000);
             }
+
+            listData->cancelEvent = 0;
         }
 
         ui_pop();
-
-        task_clear_titles(items);
         list_destroy(view);
 
+        task_clear_titles(listData->items, &listData->count);
         free(listData);
         return;
     }
 
     if(!listData->populated || (hidKeysDown() & KEY_X)) {
-        if(!listData->populateData.finished) {
-            svcSignalEvent(listData->populateData.cancelEvent);
-            while(!listData->populateData.finished) {
+        if(listData->cancelEvent != 0) {
+            svcSignalEvent(listData->cancelEvent);
+            while(svcWaitSynchronization(listData->cancelEvent, 0) == 0) {
                 svcSleepThread(1000000);
             }
+
+            listData->cancelEvent = 0;
         }
 
-        listData->populateData.items = items;
-        Result res = task_populate_titles(&listData->populateData);
-        if(R_FAILED(res)) {
-            error_display_res(NULL, NULL, NULL, res, "Failed to initiate title list population.");
-        }
-
+        listData->cancelEvent = task_populate_titles(listData->items, &listData->count, TITLES_MAX);
         listData->populated = true;
     }
 
-    if(listData->populateData.finished && R_FAILED(listData->populateData.result)) {
-        error_display_res(NULL, NULL, NULL, listData->populateData.result, "Failed to populate title list.");
-
-        listData->populateData.result = 0;
+    if(selected != NULL && selected->data != NULL && (selectedTouched || (hidKeysDown() & KEY_A))) {
+        titles_action_open((title_info*) selected->data, &listData->populated);
+        return;
     }
 
-    if(selected != NULL && selected->data != NULL && (selectedTouched || (hidKeysDown() & KEY_A))) {
-        titles_action_open(items, selected);
-        return;
+    if(*itemCount != &listData->count || *items != listData->items) {
+        *itemCount = &listData->count;
+        *items = listData->items;
     }
 }
 
@@ -158,8 +160,6 @@ void titles_open() {
 
         return;
     }
-
-    data->populateData.finished = true;
 
     list_display("Titles", "A: Select, B: Return, X: Refresh", data, titles_update, titles_draw_top);
 }

@@ -4,7 +4,6 @@
 
 #include "error.h"
 #include "prompt.h"
-#include "ui.h"
 #include "../core/screen.h"
 
 typedef struct {

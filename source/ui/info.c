@@ -5,7 +5,6 @@
 
 #include "error.h"
 #include "info.h"
-#include "ui.h"
 #include "../core/screen.h"
 
 typedef struct {
