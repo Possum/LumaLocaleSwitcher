@@ -156,28 +156,6 @@ typedef struct {
     bool (*filter)(void* data, FS_Archive* archive, const char* path, u32 attributes);
 } populate_data;
 
-static bool util_populate_contents_filter(void* data, FS_Archive* archive, const char* path, u32 attributes) {
-    populate_data* populateData = (populate_data*) data;
-    if(populateData->filter != NULL) {
-        return populateData->filter(populateData->data, archive, path, attributes);
-    }
-
-    return true;
-}
-
-static void util_populate_contents_process(void* data, FS_Archive* archive, const char* path, u32 attributes) {
-    u32 currPathSize = strlen(path) + 1;
-    char* currPath = (char*) calloc(1, currPathSize);
-    if(currPath == NULL) {
-        return;
-    }
-
-    strncpy(currPath, path, currPathSize);
-
-    populate_data* populateData = (populate_data*) data;
-    (*populateData->contents)[populateData->index++] = currPath;
-}
-
 void util_get_path_file(char* out, const char* path, u32 size) {
     const char* start = NULL;
     const char* end = NULL;
