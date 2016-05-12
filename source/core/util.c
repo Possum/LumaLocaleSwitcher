@@ -262,6 +262,11 @@ void util_free_path_utf8(FS_Path* path) {
     free(path);
 }
 
+FS_Path util_make_binary_path(const void* data, u32 size) {
+    FS_Path path = {PATH_BINARY, size, data};
+    return path;
+}
+
 int util_compare_u32(const void* e1, const void* e2) {
     u32 id1 = *(u32*) e1;
     u32 id2 = *(u32*) e2;
@@ -274,15 +279,6 @@ int util_compare_u64(const void* e1, const void* e2) {
     u64 id2 = *(u64*) e2;
 
     return id1 > id2 ? 1 : id1 < id2 ? -1 : 0;
-}
-
-FS_Archive* util_get_sdmc_archive() {
-    FS_Archive *sdmc_archive = (FS_Archive*) calloc(1, sizeof(FS_Archive));
-    sdmc_archive->id = ARCHIVE_SDMC;
-    sdmc_archive->lowPath.type = PATH_BINARY;
-    sdmc_archive->lowPath.size = 0;
-    sdmc_archive->lowPath.data = (void*) "";
-    return sdmc_archive;
 }
 
 FILE* util_open_resource(const char* path) {

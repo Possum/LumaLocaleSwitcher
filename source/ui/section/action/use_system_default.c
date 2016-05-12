@@ -16,20 +16,19 @@ static void action_remove_locale_file(ui_view* view, void* data, bool response) 
 
         char* path = locale_path_for_title(info->titleId);
 
-        // FS_Archive* sdmc_archive = util_get_sdmc_archive();
-        FS_Archive sdmcArchive = {ARCHIVE_SDMC, {PATH_BINARY, 0, (void*) ""}};
+        FS_Archive sdmc_archive;
 
-        if (R_SUCCEEDED(FSUSER_OpenArchive(&sdmcArchive))) {
+        if (R_SUCCEEDED(FSUSER_OpenArchive(&sdmc_archive, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY,"")))) {
             FS_Path* fs_path = util_make_path_utf8(path);
 
-            FSUSER_DeleteFile(sdmcArchive, *fs_path); // TODO error handling
+            FSUSER_DeleteFile(sdmc_archive, *fs_path); // TODO error handling
 
             util_free_path_utf8(fs_path);
 
             char* msg = (char*) calloc(PATH_MAX+10, sizeof(char));
             snprintf(msg, PATH_MAX+10, "Removed %s", path);
             prompt_display("Success", msg, COLOR_TEXT, false, NULL, NULL, NULL, NULL);
-            FSUSER_CloseArchive(&sdmcArchive);
+            FSUSER_CloseArchive(sdmc_archive);
         }
         else {
             prompt_display("Failed", "Couldn't access filesystem", COLOR_TEXT, false, NULL, NULL, NULL, NULL);

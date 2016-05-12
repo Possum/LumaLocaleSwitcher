@@ -50,6 +50,7 @@ Result util_ensure_dir(FS_Archive* archive, const char* path);
 
 FS_Path* util_make_path_utf8(const char* path);
 void util_free_path_utf8(FS_Path* path);
+FS_Path util_make_binary_path(const void* data, u32 size);
 
 int util_compare_u32(const void* e1, const void* e2);
 int util_compare_u64(const void* e1, const void* e2);

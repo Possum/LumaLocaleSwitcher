@@ -64,10 +64,10 @@ Result populate_locales() {
     char locale_path[PATH_MAX];
     util_get_locale_path(locale_path, PATH_MAX);
 
-    FS_Archive sdmc_archive = {ARCHIVE_SDMC, {PATH_BINARY, 0, (void*) ""}};
+    FS_Archive sdmc_archive;
 
     Result res;
-    if (R_FAILED(res = FSUSER_OpenArchive(&sdmc_archive))) return res;
+    if (R_FAILED(res = FSUSER_OpenArchive(&sdmc_archive, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY,"")))) return res;
     FS_Path* fs_path = util_make_path_utf8(locale_path);
 
     Handle dir_handle;
@@ -110,7 +110,7 @@ Result populate_locales() {
         }
     } // while (R_SUCCEEDED(FSDIR_Read(dir_handle, &count, 1, &entry)) && count > 0)
 
-    return FSUSER_CloseArchive(&sdmc_archive);
+    return FSUSER_CloseArchive(sdmc_archive);
 }
 
 static Result task_populate_titles_add_ctr(populate_titles_data* data, FS_MediaType mediaType, u64 titleId) {
@@ -143,10 +143,12 @@ static Result task_populate_titles_add_ctr(populate_titles_data* data, FS_MediaT
             static const u32 filePathData[] = {0x00000000, 0x00000000, 0x00000002, 0x6E6F6369, 0x00000000};
             static const FS_Path filePath = (FS_Path) {PATH_BINARY, 0x14, (u8*) filePathData};
             u32 archivePath[] = {(u32) (titleId & 0xFFFFFFFF), (u32) ((titleId >> 32) & 0xFFFFFFFF), mediaType, 0x00000000};
-            FS_Archive archive = {ARCHIVE_SAVEDATA_AND_CONTENT, (FS_Path) {PATH_BINARY, 0x10, (u8*) archivePath}};
+
+            FS_Path fs_path = {PATH_BINARY, 0x10, (u8*) archivePath};
+            FS_Archive archive = {ARCHIVE_SAVEDATA_AND_CONTENT};
 
             Handle fileHandle;
-            if(R_SUCCEEDED(FSUSER_OpenFileDirectly(&fileHandle, archive, filePath, FS_OPEN_READ, 0))) {
+            if(R_SUCCEEDED(FSUSER_OpenFileDirectly(&fileHandle, archive, fs_path, filePath, FS_OPEN_READ, 0))) {
                 SMDH* smdh = (SMDH*) calloc(1, sizeof(SMDH));
                 if(smdh != NULL) {
                     u32 bytesRead;

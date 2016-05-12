@@ -27,9 +27,9 @@ static void really_nuke(ui_view* view, void* data, bool response) {
 
     if(response) {
         // FS_Archive *sdmc_archive = util_get_sdmc_archive();
-        FS_Archive sdmc_archive = {ARCHIVE_SDMC, {PATH_BINARY, 0, (void*) ""}};
+        FS_Archive sdmc_archive;
 
-        if (R_SUCCEEDED(FSUSER_OpenArchive(&sdmc_archive))) {
+        if (R_SUCCEEDED(FSUSER_OpenArchive(&sdmc_archive, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY,"")))) {
 
             FS_Path* fs_path = util_make_path_utf8(path);
 
@@ -61,7 +61,7 @@ static void really_nuke(ui_view* view, void* data, bool response) {
 
             char* msg = (char*) calloc(PATH_MAX+40, sizeof(char));
 
-            FSUSER_CloseArchive(&sdmc_archive);
+            FSUSER_CloseArchive(sdmc_archive);
 
             sprintf(msg, "Removed %ld files.", files_deleted);
             prompt_display("Success", msg, COLOR_TEXT, false, NULL, NULL, NULL, NULL);

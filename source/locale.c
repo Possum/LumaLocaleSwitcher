@@ -75,7 +75,7 @@ char* locale_path_for_title(u64 titleId) {
 
 Locale* locale_for_title(u64 titleId) {
 
-    FS_Archive sdmc_archive = {ARCHIVE_SDMC, {PATH_BINARY, 0, (void*) ""}};
+    FS_Archive sdmc_archive;
 
     Locale *locale_info = (Locale*) calloc(1, sizeof(Locale));
 
@@ -84,13 +84,13 @@ Locale* locale_for_title(u64 titleId) {
     locale_info->language = LNG_NONE;
 
     Result res;
-    if (R_FAILED(res = FSUSER_OpenArchive(&sdmc_archive))) {
+    if (R_FAILED(res = FSUSER_OpenArchive(&sdmc_archive, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY,"")))) {
         return locale_info;
     }
 
     Handle handle;
     FS_Path* fs_path = util_make_path_utf8(locale_path_for_title(titleId));
-    FSUSER_OpenFileDirectly(&handle, sdmc_archive, *fs_path, FS_OPEN_READ, 0); // TODO error handling?
+    FSUSER_OpenFileDirectly(&handle, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY,""), *fs_path, FS_OPEN_READ, 0); // TODO error handling?
 
     char* buffer = (char*) calloc(8, sizeof(char)); // ex., "JPN JP\n\0"
     u32 bytes_read;
@@ -99,7 +99,7 @@ Locale* locale_for_title(u64 titleId) {
 
     util_free_path_utf8(fs_path);
 
-    FSUSER_CloseArchive(&sdmc_archive);
+    FSUSER_CloseArchive(sdmc_archive);
 
     if (bytes_read <= 6) { // we need at least "JPN JP"
         locale_info->region = RGN_NONE;
@@ -134,14 +134,14 @@ Language language_for_title(u64 titleId) {
 Result _set_locale_for_title(u64 titleId, Locale* locale) {
     char* locale_dir = (char*) calloc(PATH_MAX, sizeof(char));
     util_get_locale_path(locale_dir, PATH_MAX);
-    FS_Archive sdmc_archive = {ARCHIVE_SDMC, {PATH_BINARY, 0, (void*) ""}};
+    FS_Archive sdmc_archive;
 
     Result res;
-    if (R_FAILED(res = FSUSER_OpenArchive(&sdmc_archive))) return res;
+    if (R_FAILED(res = FSUSER_OpenArchive(&sdmc_archive, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY,"")))) return res;
 
     // Create the locale directory if it doesn't exist
     // XXX This probably doesn't work if more than one path in the hierarchy DNE
-    util_ensure_dir(util_get_sdmc_archive(), locale_dir);
+    util_ensure_dir(&sdmc_archive, locale_dir);
     free(locale_dir);
 
     FS_Path* fs_path = util_make_path_utf8(locale_path_for_title(titleId));
@@ -150,7 +150,7 @@ Result _set_locale_for_title(u64 titleId, Locale* locale) {
     // If this fails, probably means locale directory does not exist
     // TODO create locale directory if not exist
     if(R_SUCCEEDED(
-        FSUSER_OpenFileDirectly(&handle, sdmc_archive, *fs_path, FS_OPEN_WRITE | FS_OPEN_CREATE, 0)
+        FSUSER_OpenFileDirectly(&handle, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY,""), *fs_path, FS_OPEN_WRITE | FS_OPEN_CREATE, 0)
     )) {
         char* buffer = (char*) calloc(8, sizeof(char)); // ex: "JPN JP\n\0"
         snprintf(buffer, 8, "%s %s\n", region_to_string(locale->region),
@@ -161,7 +161,7 @@ Result _set_locale_for_title(u64 titleId, Locale* locale) {
         FSFILE_Close(handle);
 
         util_free_path_utf8(fs_path);
-        FSUSER_CloseArchive(&sdmc_archive);
+        FSUSER_CloseArchive(sdmc_archive);
 
         return bytes_written == 8 ? true : -1;
     }
