@@ -12,8 +12,7 @@ Install the .cia file using a CIA installer such as
 
 Requires [devkitARM](http://sourceforge.net/projects/devkitpro/files/devkitARM/)
 and [citro3d](https://github.com/fincs/citro3d) to build. You also need
-[ctrulib](https://github.com/smealum/ctrulib) (n.b. this is *not* compatible with
-Steveice10's fork).
+[ctrulib](https://github.com/smealum/ctrulib).
 
 To build, just call `git submodule sync` (to pull in
 [svchax](https://github.com/aliaspider/svchax) and
