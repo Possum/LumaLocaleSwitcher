@@ -94,7 +94,7 @@ Locale* locale_for_title(u64 titleId) {
 
     char* buffer = (char*) calloc(8, sizeof(char)); // ex., "JPN JP\n\0"
     u32 bytes_read;
-    FSFILE_Read(handle, &bytes_read, 0, buffer, 8);
+    FSFILE_Read(handle, &bytes_read, 0, buffer, 6);
     FSFILE_Close(handle);
 
     util_free_path_utf8(fs_path);
@@ -153,17 +153,17 @@ Result _set_locale_for_title(u64 titleId, Locale* locale) {
         FSUSER_OpenFileDirectly(&handle, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY,""), *fs_path, FS_OPEN_WRITE | FS_OPEN_CREATE, 0)
     )) {
         char* buffer = (char*) calloc(8, sizeof(char)); // ex: "JPN JP\n\0"
-        snprintf(buffer, 8, "%s %s\n", region_to_string(locale->region),
+        snprintf(buffer, 7, "%s %s\n", region_to_string(locale->region),
                 language_to_string(locale->language));
 
         u32 bytes_written;
-        FSFILE_Write(handle, &bytes_written, 0, buffer, 8, FS_WRITE_FLUSH);
+        FSFILE_Write(handle, &bytes_written, 0, buffer, 7, FS_WRITE_FLUSH);
         FSFILE_Close(handle);
 
         util_free_path_utf8(fs_path);
         FSUSER_CloseArchive(sdmc_archive);
 
-        return bytes_written == 8 ? true : -1;
+        return bytes_written == 7 ? true : -1;
     }
     return -1;
 }
