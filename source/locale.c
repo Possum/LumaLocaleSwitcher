@@ -92,7 +92,7 @@ Locale* locale_for_title(u64 titleId) {
     FS_Path* fs_path = util_make_path_utf8(locale_path_for_title(titleId));
     FSUSER_OpenFileDirectly(&handle, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY,""), *fs_path, FS_OPEN_READ, 0); // TODO error handling?
 
-    char* buffer = (char*) calloc(8, sizeof(char)); // ex., "JPN JP\n\0"
+    char* buffer = (char*) calloc(7, sizeof(char)); // ex., "JPN JP\0"
     u32 bytes_read;
     FSFILE_Read(handle, &bytes_read, 0, buffer, 6);
     FSFILE_Close(handle);
@@ -101,11 +101,13 @@ Locale* locale_for_title(u64 titleId) {
 
     FSUSER_CloseArchive(sdmc_archive);
 
-    if (bytes_read <= 6) { // we need at least "JPN JP"
+    if (bytes_read < 6) { // we need at least "JPN JP"
         locale_info->region = RGN_NONE;
         locale_info->language = LNG_NONE;
         return locale_info;
     }
+
+    buffer[bytes_read] = '\0';
 
     char* region_str = (char*) calloc(4, sizeof(char));
     char* lang_str = (char*) calloc(3, sizeof(char));
@@ -152,18 +154,19 @@ Result _set_locale_for_title(u64 titleId, Locale* locale) {
     if(R_SUCCEEDED(
         FSUSER_OpenFileDirectly(&handle, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY,""), *fs_path, FS_OPEN_WRITE | FS_OPEN_CREATE, 0)
     )) {
-        char* buffer = (char*) calloc(8, sizeof(char)); // ex: "JPN JP\n\0"
+        char* buffer = (char*) calloc(8, sizeof(char)); // ex: "JPN JP\0"
         snprintf(buffer, 7, "%s %s\n", region_to_string(locale->region),
                 language_to_string(locale->language));
+        buffer[7] = '\0';
 
         u32 bytes_written;
-        FSFILE_Write(handle, &bytes_written, 0, buffer, 7, FS_WRITE_FLUSH);
+        FSFILE_Write(handle, &bytes_written, 0, buffer, 6, FS_WRITE_FLUSH);
         FSFILE_Close(handle);
 
         util_free_path_utf8(fs_path);
         FSUSER_CloseArchive(sdmc_archive);
 
-        return bytes_written == 7 ? true : -1;
+        return bytes_written == 6 ? true : -1;
     }
     return -1;
 }
