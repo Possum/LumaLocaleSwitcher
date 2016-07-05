@@ -36,6 +36,11 @@ exist anyway.
 There is no file chooser built in, so if you need to use a custom directory for
 some reason, you will have to write the path to /locales.conf manually.
 
+Changing the region emulation is not always a magic bullet, due to the way the
+3ds services are set up. In particular, online play may not function even when
+the region emulation is set up properly. If you are receiving 003-0399, either
+give up or use a search engine to look for workarounds.
+
 **Bugs**
 
 Please report bugs at https://github.com/Possum/LumaLocaleSwitcher/
