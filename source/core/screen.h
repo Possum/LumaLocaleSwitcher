@@ -41,15 +41,16 @@
 #define TEXTURE_WIFI_3 30
 #define TEXTURE_AUTO_START 31
 
-#define NUM_COLORS 7
-
-#define COLOR_TEXT 0
-#define COLOR_NAND 1
-#define COLOR_SD 2
-#define COLOR_GAME_CARD 3
-#define COLOR_DS_TITLE 4
-#define COLOR_FILE 5
-#define COLOR_DIRECTORY 6
+enum {
+    COLOR_TEXT = 0,
+    COLOR_NAND,
+    COLOR_SD,
+    COLOR_GAME_CARD,
+    COLOR_DS_TITLE,
+    COLOR_IMPORTANT,
+    COLOR_OUTDATED,
+    NUM_COLORS
+};
 
 void screen_init();
 void screen_exit();

@@ -199,10 +199,10 @@ void screen_init() {
                 colorConfig[COLOR_GAME_CARD] = color;
             } else if(strcasecmp(key, "dstitle") == 0) {
                 colorConfig[COLOR_DS_TITLE] = color;
-            } else if(strcasecmp(key, "file") == 0) {
-                colorConfig[COLOR_FILE] = color;
-            } else if(strcasecmp(key, "directory") == 0) {
-                colorConfig[COLOR_DIRECTORY] = color;
+            } else if(strcasecmp(key, "important") == 0) {
+                colorConfig[COLOR_IMPORTANT] = color;
+            } else if(strcasecmp(key, "outdated") == 0) {
+                colorConfig[COLOR_OUTDATED] = color;
             }
         }
     }

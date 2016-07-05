@@ -79,5 +79,5 @@ void nuke() {
 
     util_get_locale_path(path, PATH_MAX);
     sprintf(message, pattern, path);
-    prompt_display("Confirmation", message, COLOR_NAND, true, path, NULL, NULL, really_nuke); // TODO COLOR
+    prompt_display("Confirmation", message, COLOR_IMPORTANT, true, path, NULL, NULL, really_nuke);
 }
