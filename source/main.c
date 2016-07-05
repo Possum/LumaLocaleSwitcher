@@ -42,9 +42,7 @@ int main(int argc, const char* argv[]) {
         }
     }
 
-    aptOpenSession();
     Result setCpuTimeRes = APT_SetAppCpuTimeLimit(30);
-    aptCloseSession();
 
     if(R_FAILED(setCpuTimeRes)) {
         util_panic("Failed to set syscore CPU time limit: %08lX", setCpuTimeRes);

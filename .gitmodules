@@ -3,4 +3,5 @@
 	url = git://github.com/Steveice10/buildtools
 [submodule "source/svchax"]
 	path = source/svchax
-	url = git://github.com/aliaspider/svchax
+	url = git://github.com/Possum/svchax
+	branch = master
