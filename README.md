@@ -45,4 +45,17 @@ Please report bugs at https://github.com/Possum/LumaLocaleSwitcher/
 This is largely based on [FBI](https://github.com/Steveice10/FBI) by
 [Steveice10](https://github.com/Steveice10).
 
+This also would not be possible without
+[AuroraWright](https://github.com/AuroraWright)'s work on the region emulation
+feature in [Luma3DS](https://github.com/AuroraWright/Luma3DS/).
+
+***Contributors***
+[Possum](https://github.com/Possum) - project maintainer
+CouldBeWolf - beta tester
+
 Also thanks to the 3DS homebrew/CFW community.
+
+**License**
+
+This software is provided under the MIT license. Please see LICENSE.txt for full
+details fo the license.
