@@ -8,9 +8,9 @@ compatible forks such as SaltFW).
 Install the .cia file using a CIA installer such as
 [FBI](https://github.com/Steveice10/FBI/releases).
 
-Or scan the QR code below for the latest release:
+Or scan the QR code below for the latest release (0.02):
 
-![QR](https://raw.githubusercontent.com/Possum/LumaLocaleSwitcher/master/qr/latest.png)
+![QR](https://raw.githubusercontent.com/Possum/LumaLocaleSwitcher/master/qr/0.02.png)
 
 ## Compiling
 
