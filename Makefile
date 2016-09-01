@@ -14,9 +14,14 @@ ifeq ($(TARGET),3DS)
 endif
 
 # COMMON CONFIGURATION #
-
-NAME := Luma Locale Switcher
-
+#---------------------------------------------------------------------------------
+# TARGET is the name of the output
+# BUILD is the directory where object files & intermediate files will be placed
+# SOURCES is a list of directories containing source code
+# DATA is a list of directories containing data files
+# INCLUDES is a list of directories containing header files
+#export TARGET := Luma Locale Switcher
+Name := Luma Locale Switcher
 BUILD_DIR := build
 OUTPUT_DIR := output
 INCLUDE_DIRS := include
@@ -28,7 +33,7 @@ EXTRA_OUTPUT_FILES :=
 
 LIBRARY_DIRS := $(DEVKITPRO)/libctru
 LIBRARIES := -lctru -lcitro3d
-
+#needs to be testet -DBUILD_NAME="\"$(TARGET) (`date +'%Y/%m/%d'`)\""#
 BUILD_FLAGS := -DLIBKHAX_AS_LIB -DVERSION_STRING="\"`git describe --tags --abbrev=0`\""
 RUN_FLAGS :=
 
