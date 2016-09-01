@@ -3,6 +3,6 @@ CMakeLists.txt
 
 # Vim swap files
 .*.sw*
-
+.bin
 build
 output
