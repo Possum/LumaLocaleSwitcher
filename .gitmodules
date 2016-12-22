@@ -1,7 +1,4 @@
 [submodule "buildtools"]
 	path = buildtools
 	url = git://github.com/Steveice10/buildtools
-[submodule "source/svchax"]
-	path = source/svchax
-	url = git://github.com/Steveice10/FBI/tree/master/source/hax/svchax
 	branch = master
