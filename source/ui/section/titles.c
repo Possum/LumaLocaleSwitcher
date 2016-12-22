@@ -27,31 +27,6 @@ static list_item titles_action_items[TITLES_ACTION_COUNT] = {
         {"Use System Default", COLOR_TEXT, action_use_system_default},
 };
 
-/*
-#define CARD_TITLES_ACTION_COUNT 2
-
-static u32 card_titles_action_count = CARD_TITLES_ACTION_COUNT;
-static list_item card_titles_action_items[CARD_TITLES_ACTION_COUNT] = {
-        {"Launch Title", COLOR_TEXT, action_launch_title},
-        {"Browse Save Data", COLOR_TEXT, action_browse_title_save_data},
-};
-
-#define DSIWARE_TITLES_ACTION_COUNT 2
-
-static u32 dsiware_titles_action_count = DSIWARE_TITLES_ACTION_COUNT;
-static list_item dsiware_titles_action_items[DSIWARE_TITLES_ACTION_COUNT] = {
-        {"Launch Title", COLOR_TEXT, action_launch_title},
-        {"Delete Title", COLOR_TEXT, action_delete_title},
-};
-
-#define DSIWARE_CARD_TITLES_ACTION_COUNT 1
-
-static u32 dsiware_card_titles_action_count = DSIWARE_CARD_TITLES_ACTION_COUNT;
-static list_item dsiware_card_titles_action_items[DSIWARE_CARD_TITLES_ACTION_COUNT] = {
-        {"Launch Title", COLOR_TEXT, action_launch_title},
-};
-*/
-
 typedef struct {
     title_info* info;
     bool* populated;

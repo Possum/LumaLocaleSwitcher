@@ -9,7 +9,6 @@
 #include "../../../core/screen.h"
 #include "../../../locale.h"
 
-// TODO duplicate code? (see section/config.c)
 typedef struct {
     list_item items[LNG_MAX];
     title_info *title_info;
@@ -29,7 +28,7 @@ static void action_set_language(language_data* data, char* name, bool populated)
         prompt_display("Set language", message, COLOR_TEXT, false, NULL, NULL, NULL, NULL);
     }
     else {
-        error_display(false, data, NULL, "Failed to set language\n(does locales directory exist?)");
+        error_display(false, data, NULL, "Failed to set language\n(does titles directory exist?)");
     }
 }
 

@@ -19,15 +19,13 @@ and [citro3d](https://github.com/fincs/citro3d) to build. You also need
 [ctrulib](https://github.com/smealum/ctrulib).
 
 To build, just call `git submodule sync` (to pull in
-[svchax](https://github.com/aliaspider/svchax) and
 [buildtools](git://github.com/Steveice10/buildtools)) and `make` and you should
 be good.
 
 ##  Set up
 
-If you use Luma3DS you can just select "Titles" and make your changes.
-Otherwise, you can choose from the list in the app or write your own custom
-directory to /locales.conf
+Luma3DS Only: you can just select "Titles" and make your changes.
+
 
 ## Known Limitations
 

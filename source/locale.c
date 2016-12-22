@@ -51,24 +51,34 @@ const char* language_to_string(Language language) {
     return _Language_Strings[language];
 }
 
+char* concat(const char *s1, const char *s2)
+{
+    char *result = malloc(strlen(s1)+strlen(s2)+1);
+    strcpy(result, s1);
+    strcat(result, s2);
+    return result;
+}
+
 char* locale_path_for_title(u64 titleId) {
     char* path = calloc(PATH_MAX, sizeof(char));
-    char* cfg_path = calloc(PATH_MAX, sizeof(char));
-    util_get_locale_path(cfg_path, PATH_MAX);
 
     char title_id_str[17];
     snprintf(title_id_str, 17, "%016llX", titleId);
     title_id_str[16] = '\0';
 
-    // Add trailing slash if it don't exist (but it should)
-    size_t path_len = strlen(cfg_path);
-    if (cfg_path[path_len-1] != '/') {
-        cfg_path[path_len] = '/';
-        cfg_path[path_len+1] = '\0';
-    }
+    snprintf(path, PATH_MAX, "%s%s/locale.txt", "/luma/titles/", title_id_str);
 
-    snprintf(path, PATH_MAX, "%s%s.txt", cfg_path, title_id_str);
-    free(cfg_path);
+    return path;
+}
+
+char* titleID_path_for_title(u64 titleId) {
+    char* path = calloc(PATH_MAX, sizeof(char));
+
+    char title_id_str[17];
+    snprintf(title_id_str, 17, "%016llX", titleId);
+    title_id_str[16] = '\0';
+
+    snprintf(path, PATH_MAX, "%s%s/", "/luma/titles/", title_id_str);
 
     return path;
 }
@@ -134,26 +144,26 @@ Language language_for_title(u64 titleId) {
 }
 
 Result _set_locale_for_title(u64 titleId, Locale* locale) {
-    char* locale_dir = (char*) calloc(PATH_MAX, sizeof(char));
-    util_get_locale_path(locale_dir, PATH_MAX);
+    char* titles_dir = (char*) calloc(PATH_MAX, sizeof(char));
+    util_get_titles_path(titles_dir, PATH_MAX);
     FS_Archive sdmc_archive;
 
     Result res;
     if (R_FAILED(res = FSUSER_OpenArchive(&sdmc_archive, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY,"")))) return res;
 
-    // Create the locale directory if it doesn't exist
-    // XXX This probably doesn't work if more than one path in the hierarchy DNE
-    util_ensure_dir(&sdmc_archive, locale_dir);
-    free(locale_dir);
+    // Create the titles directory if it doesn't exist
+    util_ensure_dir(&sdmc_archive, titles_dir);
+    free(titles_dir);
 
+    // Create the titleID directory if it doesn't exist
+    util_ensure_dir(&sdmc_archive, titleID_path_for_title(titleId));
+    free(titleID_path_for_title(titleId));
+	
     FS_Path* fs_path = util_make_path_utf8(locale_path_for_title(titleId));
-
+	
+	// If this fails, probably means titleID directory does not exist
     Handle handle;
-    // If this fails, probably means locale directory does not exist
-    // TODO create locale directory if not exist
-    if(R_SUCCEEDED(
-        FSUSER_OpenFileDirectly(&handle, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY,""), *fs_path, FS_OPEN_WRITE | FS_OPEN_CREATE, 0)
-    )) {
+    if(R_SUCCEEDED(FSUSER_OpenFileDirectly(&handle, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY,""), *fs_path, FS_OPEN_WRITE | FS_OPEN_CREATE, 0))) {
         char* buffer = (char*) calloc(8, sizeof(char)); // ex: "JPN JP\0"
         snprintf(buffer, 7, "%s %s\n", region_to_string(locale->region),
                 language_to_string(locale->language));

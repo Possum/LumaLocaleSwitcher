@@ -61,17 +61,16 @@ Result populate_locales() {
     ll_head = LocaleList;
     ll_next = ll_head;
 
-    char locale_path[PATH_MAX];
-    util_get_locale_path(locale_path, PATH_MAX);
+    char titles_path[PATH_MAX];
+	util_get_titles_path(titles_path, PATH_MAX);
 
     FS_Archive sdmc_archive;
 
     Result res;
     if (R_FAILED(res = FSUSER_OpenArchive(&sdmc_archive, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY,"")))) return res;
-    FS_Path* fs_path = util_make_path_utf8(locale_path);
+    FS_Path* fs_path = util_make_path_utf8(titles_path);
 
     Handle dir_handle;
-    // FS_Archive *sdmc_archive = util_get_sdmc_archive();
 
     FSUSER_OpenDirectory(&dir_handle, sdmc_archive, *fs_path); // TODO error handling?
 
