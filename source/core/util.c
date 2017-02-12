@@ -73,7 +73,7 @@ void util_panic(const char* s, ...) {
 
     PrintConsole* console = consoleInit(GFX_TOP, NULL);
 
-    const char* header = "FBI has encountered a fatal error!";
+    const char* header = "Program has encountered a fatal error!";
     const char* footer = "Press any button to exit.";
 
     printf("\x1b[0;0H");
@@ -134,7 +134,6 @@ bool util_is_dir(FS_Archive* archive, const char* path) {
         if(R_SUCCEEDED(res = FSUSER_OpenDirectory(&dirHandle, *archive, *fsPath))) {
             FSDIR_Close(dirHandle);
         }
-
         util_free_path_utf8(fsPath);
     } else {
         res = R_FBI_OUT_OF_MEMORY;
@@ -190,27 +189,8 @@ void util_get_parent_path(char* out, const char* path, u32 size) {
     out[terminatorPos] = '\0';
 }
 
-// Returns whether directory exists
-Result util_get_locale_path(char* out, size_t size) {
-    FILE* config_file = util_open_resource("/locales.conf");
-    if (config_file != NULL) {
-        char *buffer = (char*) calloc(size, sizeof(char));
-
-        while(fgets(buffer, size, config_file) != NULL) {
-            char* newline = strchr(buffer, '\n');
-            buffer[size-1] = '\0';
-            if(newline != NULL) {
-                *newline = '\0';
-            }
-            strncpy(out, buffer, size);
-            out[strlen(buffer)] = '\0';
-            free(buffer);
-            return 1;
-        }
-    }
-
-    // Default to Luma
-    char* fallback = "/luma/locales/";
+Result util_get_titles_path(char* out, size_t size) {
+    char* fallback = "/luma/titles/";
     strncpy(out, fallback, strlen(fallback));
     out[strlen(fallback)] = '\0';
     return 0;
@@ -279,20 +259,4 @@ int util_compare_u64(const void* e1, const void* e2) {
     u64 id2 = *(u64*) e2;
 
     return id1 > id2 ? 1 : id1 < id2 ? -1 : 0;
-}
-
-FILE* util_open_resource(const char* path) {
-    u32 realPathSize = strlen(path) + 16;
-    char realPath[realPathSize];
-
-    snprintf(realPath, realPathSize, "sdmc:/%s", path);
-    FILE* fd = fopen(realPath, "rb");
-
-    if(fd != NULL) {
-        return fd;
-    } else {
-        snprintf(realPath, realPathSize, "romfs:/%s", path);
-
-        return fopen(realPath, "rb");
-    }
 }

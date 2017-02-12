@@ -3,15 +3,6 @@
 LumaLocaleSwitcher can be used to manage per-title locales for Luma3ds (and
 compatible forks such as SaltFW).
 
-## Installation
-
-Install the .cia file using a CIA installer such as
-[FBI](https://github.com/Steveice10/FBI/releases).
-
-Or scan the QR code below for the latest release (0.02):
-
-![QR](https://raw.githubusercontent.com/Possum/LumaLocaleSwitcher/master/qr/0.02.png)
-
 ## Compiling
 
 Requires [devkitARM](http://sourceforge.net/projects/devkitpro/files/devkitARM/)
@@ -19,15 +10,13 @@ and [citro3d](https://github.com/fincs/citro3d) to build. You also need
 [ctrulib](https://github.com/smealum/ctrulib).
 
 To build, just call `git submodule sync` (to pull in
-[svchax](https://github.com/aliaspider/svchax) and
 [buildtools](git://github.com/Steveice10/buildtools)) and `make` and you should
 be good.
 
 ##  Set up
 
-If you use Luma3DS you can just select "Titles" and make your changes.
-Otherwise, you can choose from the list in the app or write your own custom
-directory to /locales.conf
+Luma3DS Only: you can just select "Titles" and make your changes.
+
 
 ## Known Limitations
 

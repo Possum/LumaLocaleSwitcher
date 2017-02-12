@@ -15,7 +15,7 @@ endif
 
 # COMMON CONFIGURATION #
 
-NAME := Luma Locale Switcher
+NAME := Luma Locale Switcher - Rvn
 
 BUILD_DIR := build
 OUTPUT_DIR := output
@@ -36,9 +36,9 @@ RUN_FLAGS :=
 
 TITLE := $(NAME)
 DESCRIPTION := Locale Switcher
-AUTHOR := Possum
+AUTHOR := Someone
 PRODUCT_CODE := LumaLocale
-UNIQUE_ID := 0xA0CA1
+UNIQUE_ID := 0xA0CA2
 
 SYSTEM_MODE := 64MB
 SYSTEM_MODE_EXT := Legacy

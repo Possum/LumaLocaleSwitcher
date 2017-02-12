@@ -8,13 +8,11 @@
 #include "section/section.h"
 #include "../core/screen.h"
 
-#define MAINMENU_ITEM_COUNT 3
+#define MAINMENU_ITEM_COUNT 1
 
 static u32 mainmenu_item_count = MAINMENU_ITEM_COUNT;
 static list_item mainmenu_items[MAINMENU_ITEM_COUNT] = {
         {"Titles", COLOR_TEXT, titles_open},
-        {"Choose Locales Directory", COLOR_TEXT, config_open},
-        {"Reset all to System Default", COLOR_TEXT, nuke}, // calls action_delete_dir on locale dir
 };
 
 static void mainmenu_draw_top(ui_view* view, void* data, float x1, float y1, float x2, float y2, list_item* selected) {
