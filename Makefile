@@ -29,7 +29,8 @@ EXTRA_OUTPUT_FILES :=
 LIBRARY_DIRS := $(DEVKITPRO)/libctru
 LIBRARIES := citro3d ctru m
 
-BUILD_FLAGS := -DLIBKHAX_AS_LIB -DVERSION_STRING="\"`git describe --tags --abbrev=0`\""
+VERSION := $(shell git describe --tags --abbrev=0)
+BUILD_FLAGS := -DLIBKHAX_AS_LIB -DVERSION_STRING="\"$(VERSION)\""
 RUN_FLAGS :=
 
 # 3DS CONFIGURATION #
