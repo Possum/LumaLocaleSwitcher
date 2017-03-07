@@ -60,14 +60,7 @@ char* locale_path_for_title(u64 titleId) {
     snprintf(title_id_str, 17, "%016llX", titleId);
     title_id_str[16] = '\0';
 
-    // Add trailing slash if it don't exist (but it should)
-    size_t path_len = strlen(cfg_path);
-    if (cfg_path[path_len-1] != '/') {
-        cfg_path[path_len] = '/';
-        cfg_path[path_len+1] = '\0';
-    }
-
-    snprintf(path, PATH_MAX, "%s%s.txt", cfg_path, title_id_str);
+    snprintf(path, PATH_MAX, cfg_path, title_id_str);
     free(cfg_path);
 
     return path;
@@ -140,6 +133,11 @@ Result _set_locale_for_title(u64 titleId, Locale* locale) {
 
     Result res;
     if (R_FAILED(res = FSUSER_OpenArchive(&sdmc_archive, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY,"")))) return res;
+
+    // Find the actual directory part
+    // FIXME yeah this is gross...
+    char* substr = strstr(locale_dir, "%s"); // Finds the first instance of "%s"
+    locale_dir[strlen(locale_dir) - strlen(substr)] = '\0'; // Chops it off using "\0"
 
     // Create the locale directory if it doesn't exist
     // XXX This probably doesn't work if more than one path in the hierarchy DNE

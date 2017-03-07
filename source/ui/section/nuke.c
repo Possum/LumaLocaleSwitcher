@@ -78,6 +78,12 @@ void nuke() {
     char *pattern = "Are you sure?\nTHIS WILL DESTROY EVERYTHING IN:\n%s";
 
     util_get_locale_path(path, PATH_MAX);
+
+    // Find the actual directory part
+    // FIXME yeah this is gross...
+    char* substr = strstr(path, "%s"); // Finds the first instance of "%s"
+    path[strlen(path) - strlen(substr)] = '\0'; // Chops it off using "\0"
+
     sprintf(message, pattern, path);
     prompt_display("Confirmation", message, COLOR_IMPORTANT, true, path, NULL, NULL, really_nuke);
 }

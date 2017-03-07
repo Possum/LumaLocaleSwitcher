@@ -27,7 +27,7 @@ static void action_write_locale_dir_config(ui_view* view, void* data, bool respo
 void action_change_locale_dir(config_info* info, bool* populated) {
     config_info* data = calloc(1, sizeof(config_info));
     strncpy(data->path, info->path, PATH_MAX);
-    char *pattern = "Set locale directory to %s";
+    char *pattern = "Set locale path to %s";
     char *message = (char*) calloc(1, strlen(pattern) + strlen(info->path) + 1);
     sprintf(message, pattern, info->path);
     prompt_display("Confirmation", message, COLOR_TEXT, true, data, NULL, NULL, action_write_locale_dir_config);

@@ -210,7 +210,7 @@ Result util_get_locale_path(char* out, size_t size) {
     }
 
     // Default to Luma
-    char* fallback = "/luma/locales/";
+    char* fallback = "/luma/titles/%s/locale.txt";
     strncpy(out, fallback, strlen(fallback));
     out[strlen(fallback)] = '\0';
     return 0;

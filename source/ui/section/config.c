@@ -11,7 +11,7 @@
 #include "../../core/util.h"
 #include "section.h"
 
-#define LOCALE_ITEMS_COUNT 5
+#define LOCALE_ITEMS_COUNT 6
 
 typedef struct {
     list_item items[LOCALE_ITEMS_COUNT];
@@ -26,10 +26,11 @@ typedef struct {
 } config_action_data;
 
 static list_item locale_items[LOCALE_ITEMS_COUNT] = {
-        {"/luma/locales/", COLOR_TEXT, action_change_locale_dir},
-        {"/homebrew/3ds/SaltFW/locales", COLOR_TEXT, action_change_locale_dir},
-        {"/aurei/locales/", COLOR_OUTDATED, action_change_locale_dir},
-        {"/SaltFW/locales/", COLOR_OUTDATED, action_change_locale_dir},
+        {"/luma/locales/titles/%s/locale.txt", COLOR_TEXT, action_change_locale_dir},
+        {"/homebrew/3ds/SaltFW/locales/%s.txt", COLOR_TEXT, action_change_locale_dir},
+        {"/luma/locales/%s.txt", COLOR_OUTDATED, action_change_locale_dir},
+        {"/aurei/locales/%s.txt", COLOR_OUTDATED, action_change_locale_dir},
+        {"/SaltFW/locales/%s.txt", COLOR_OUTDATED, action_change_locale_dir},
         {"Other", COLOR_TEXT, action_pick_locale_dir},
 };
 
