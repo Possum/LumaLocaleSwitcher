@@ -73,7 +73,7 @@ void util_panic(const char* s, ...) {
 
     PrintConsole* console = consoleInit(GFX_TOP, NULL);
 
-    const char* header = "FBI has encountered a fatal error!";
+    const char* header = "Application has encountered a fatal error!";
     const char* footer = "Press any button to exit.";
 
     printf("\x1b[0;0H");
@@ -137,7 +137,7 @@ bool util_is_dir(FS_Archive* archive, const char* path) {
 
         util_free_path_utf8(fsPath);
     } else {
-        res = R_FBI_OUT_OF_MEMORY;
+        res = R_OUT_OF_MEMORY;
     }
 
     return R_SUCCEEDED(res);
@@ -227,7 +227,7 @@ Result util_ensure_dir(FS_Archive* archive, const char* path) {
 
             util_free_path_utf8(fsPath);
         } else {
-            res = R_FBI_OUT_OF_MEMORY;
+            res = R_OUT_OF_MEMORY;
         }
     }
 

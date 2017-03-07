@@ -205,7 +205,7 @@ static Result task_populate_titles_add_ctr(populate_titles_data* data, FS_MediaT
 
             (*data->count)++;
         } else {
-            res = R_FBI_OUT_OF_MEMORY;
+            res = R_OUT_OF_MEMORY;
         }
     }
 
@@ -238,7 +238,7 @@ static Result task_populate_titles_add_twl(populate_titles_data* data, FS_MediaT
 
             free(header);
         } else {
-            res = R_FBI_OUT_OF_MEMORY;
+            res = R_OUT_OF_MEMORY;
         }
     }
 
@@ -348,7 +348,7 @@ static Result task_populate_titles_add_twl(populate_titles_data* data, FS_MediaT
 
             (*data->count)++;
         } else {
-            res = R_FBI_OUT_OF_MEMORY;
+            res = R_OUT_OF_MEMORY;
         }
     }
 
@@ -388,7 +388,7 @@ static Result task_populate_titles_from(populate_titles_data* data, FS_MediaType
 
                 free(titleIds);
             } else {
-                res = R_FBI_OUT_OF_MEMORY;
+                res = R_OUT_OF_MEMORY;
             }
         }
     } else {
