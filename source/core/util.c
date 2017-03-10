@@ -202,6 +202,15 @@ Result util_get_locale_path(char* out, size_t size) {
             if(newline != NULL) {
                 *newline = '\0';
             }
+
+            // Some backwards compatibility stuff here..
+            if (strstr(buffer, "%s") == NULL) {
+                if (buffer[size-2] == '/')
+                    strcat(buffer, "%s.txt");
+                else
+                    strcat(buffer, "/%s.txt");
+            }
+
             strncpy(out, buffer, size);
             out[strlen(buffer)] = '\0';
             free(buffer);
