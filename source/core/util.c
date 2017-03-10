@@ -223,7 +223,23 @@ Result util_ensure_dir(FS_Archive* archive, const char* path) {
         FS_Path* fsPath = util_make_path_utf8(path);
         if(fsPath != NULL) {
             FSUSER_DeleteFile(*archive, *fsPath);
-            res = FSUSER_CreateDirectory(*archive, *fsPath, 0);
+            if (!R_SUCCEEDED(res = FSUSER_CreateDirectory(*archive, *fsPath, 0))) {
+                // Try recursive
+                int pathlen = strlen(path);
+
+                for (int i = 0; i < pathlen; i++) {
+                    char* parent_path = (char*) malloc(sizeof(char) * (i + 1));
+                    if (path[i] == '/') {
+                        strncpy(parent_path, path, i);
+                        parent_path[i] = '\0';
+                        FS_Path* fsParentPath = util_make_path_utf8(parent_path);
+                        if (!R_SUCCEEDED(res = FSUSER_CreateDirectory(*archive, *fsParentPath, 0))) {
+                            return res; // :(
+                        }
+                    }
+                }
+
+            }
 
             util_free_path_utf8(fsPath);
         } else {
