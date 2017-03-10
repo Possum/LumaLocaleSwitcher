@@ -4,7 +4,6 @@
 
 #include "core/screen.h"
 #include "core/util.h"
-#include "svchax/svchax.h"
 #include "ui/mainmenu.h"
 #include "ui/section/task/task.h"
 
@@ -33,14 +32,6 @@ void cleanup() {
 
 int main(int argc, const char* argv[]) {
     gfxInitDefault();
-
-    if(argc > 0) {
-        svchax_init(true);
-        if(!__ctr_svchax || !__ctr_svchax_srv) {
-            util_panic("Failed to acquire kernel access.");
-            return 1;
-        }
-    }
 
     Result setCpuTimeRes = APT_SetAppCpuTimeLimit(30);
 
