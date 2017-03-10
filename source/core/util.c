@@ -250,6 +250,19 @@ Result util_ensure_dir(FS_Archive* archive, const char* path) {
     return res;
 }
 
+// Populates `out` with the directory that is the most common ancestor
+Result util_get_locale_dir(char* out, size_t size) {
+    Result res = 0;
+
+    // Probably not very efficient...
+    if (R_SUCCEEDED(res = util_get_locale_path(out, size))) {
+        char* substr = strstr(out, "%s"); // Finds the first instance of "%s"
+        if (substr != NULL)
+            out[strlen(out) - strlen(substr)] = '\0'; // Chops it off using "\0"
+    }
+    return res;
+}
+
 FS_Path* util_make_path_utf8(const char* path) {
     size_t len = strlen(path);
 

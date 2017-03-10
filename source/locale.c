@@ -128,23 +128,33 @@ Language language_for_title(u64 titleId) {
 
 Result _set_locale_for_title(u64 titleId, Locale* locale) {
     char* locale_dir = (char*) calloc(PATH_MAX, sizeof(char));
-    util_get_locale_path(locale_dir, PATH_MAX);
+    util_get_locale_dir(locale_dir, PATH_MAX);
     FS_Archive sdmc_archive;
 
     Result res;
     if (R_FAILED(res = FSUSER_OpenArchive(&sdmc_archive, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY,"")))) return res;
-
-    // Find the actual directory part
-    // FIXME yeah this is gross...
-    char* substr = strstr(locale_dir, "%s"); // Finds the first instance of "%s"
-    locale_dir[strlen(locale_dir) - strlen(substr)] = '\0'; // Chops it off using "\0"
 
     // Create the locale directory if it doesn't exist
     // XXX This probably doesn't work if more than one path in the hierarchy DNE
     util_ensure_dir(&sdmc_archive, locale_dir);
     free(locale_dir);
 
-    FS_Path* fs_path = util_make_path_utf8(locale_path_for_title(titleId));
+    char* locale_path = locale_path_for_title(titleId);
+    FS_Path* fs_path = util_make_path_utf8(locale_path);
+
+    // Make sure all directories exist
+    int pathlen = strlen(locale_path);
+    int last_virgule = pathlen;
+
+    // Find the deepest directory
+    for (int i = 0; i < pathlen; i++)
+        if (locale_path[i] == '/')
+            last_virgule = i;
+
+    char* deepest_path = (char*) malloc(sizeof(char) * (last_virgule + 1));
+    strncpy(deepest_path, locale_path, last_virgule);
+    deepest_path[last_virgule] = '\0';
+    util_ensure_dir(&sdmc_archive, deepest_path);
 
     Handle handle;
     // If this fails, probably means locale directory does not exist

@@ -46,6 +46,7 @@ bool util_is_dir(FS_Archive* archive, const char* path);
 void util_get_path_file(char* out, const char* path, u32 size);
 void util_get_parent_path(char* out, const char* path, u32 size);
 Result util_get_locale_path(char* out, size_t size);
+Result util_get_locale_dir(char* out, size_t size);
 Result util_ensure_dir(FS_Archive* archive, const char* path);
 
 FS_Path* util_make_path_utf8(const char* path);
