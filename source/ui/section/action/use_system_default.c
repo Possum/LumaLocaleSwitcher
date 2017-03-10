@@ -26,7 +26,7 @@ static void action_remove_locale_file(ui_view* view, void* data, bool response) 
             util_free_path_utf8(fs_path);
 
             char* msg = (char*) calloc(PATH_MAX+10, sizeof(char));
-            snprintf(msg, PATH_MAX+10, "Removed %s", path);
+            snprintf(msg, PATH_MAX+10, "Removed\n%s", path);
             prompt_display("Success", msg, COLOR_TEXT, false, NULL, NULL, NULL, NULL);
             FSUSER_CloseArchive(sdmc_archive);
         }
