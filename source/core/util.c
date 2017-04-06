@@ -219,7 +219,11 @@ Result util_get_locale_path(char* out, size_t size) {
     }
 
     // Default to Luma
+#ifdef LUMA_NIGHTLY
     char* fallback = "/luma/titles/%s/locale.txt";
+#else
+    char* fallback = "/luma/%s.txt";
+#endif
     strncpy(out, fallback, strlen(fallback));
     out[strlen(fallback)] = '\0';
     return 0;

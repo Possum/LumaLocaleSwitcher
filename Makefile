@@ -33,6 +33,10 @@ VERSION := $(shell git describe --tags --abbrev=0)
 BUILD_FLAGS := -DLIBKHAX_AS_LIB -DVERSION_STRING="\"$(VERSION)\""
 RUN_FLAGS :=
 
+ifeq ($(LUMA_NIGHTLY),1)
+    BUILD_FLAGS += -DLUMA_NIGHTLY
+endif
+
 # 3DS CONFIGURATION #
 
 TITLE := $(NAME)

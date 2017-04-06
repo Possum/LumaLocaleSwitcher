@@ -26,9 +26,14 @@ typedef struct {
 } config_action_data;
 
 static list_item locale_items[LOCALE_ITEMS_COUNT] = {
+#ifdef LUMA_NIGHTLY
         {"/luma/locales/titles/%s/locale.txt", COLOR_TEXT, action_change_locale_dir},
-        {"/homebrew/3ds/SaltFW/locales/%s.txt", COLOR_TEXT, action_change_locale_dir},
         {"/luma/locales/%s.txt", COLOR_OUTDATED, action_change_locale_dir},
+#else
+        {"/luma/locales/%s.txt", COLOR_TEXT, action_change_locale_dir},
+        {"/luma/locales/titles/%s/locale.txt", COLOR_TEXT, action_change_locale_dir},
+#endif
+        {"/homebrew/3ds/SaltFW/locales/%s.txt", COLOR_TEXT, action_change_locale_dir},
         {"/aurei/locales/%s.txt", COLOR_OUTDATED, action_change_locale_dir},
         {"/SaltFW/locales/%s.txt", COLOR_OUTDATED, action_change_locale_dir},
         {"Other", COLOR_TEXT, action_pick_locale_dir},
