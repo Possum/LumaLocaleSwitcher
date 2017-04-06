@@ -8,9 +8,17 @@ compatible forks such as SaltFW).
 Install the .cia file using a CIA installer such as
 [FBI](https://github.com/Steveice10/FBI/releases).
 
-Or scan the QR code below for the latest release (0.02):
+If you are using the latest *stable* version of Luma3DS (6.6 at this time), scan
+the QR code below for the latest release (0.03):
 
-![QR](https://raw.githubusercontent.com/Possum/LumaLocaleSwitcher/master/qr/0.02.png)
+![QR](https://raw.githubusercontent.com/Possum/LumaLocaleSwitcher/master/qr/0.03.png)
+
+If you are using the *nightly* version of Luma3DS (or any version newer than
+6.6), scan the QR code below for the latest nightly compatible release
+(0.03-NIGHTLY):
+
+![QR](https://raw.githubusercontent.com/Possum/LumaLocaleSwitcher/master/qr/0.03-NIGHTLY.png)
+
 
 ## Compiling
 
@@ -23,11 +31,15 @@ To build, just call `git submodule sync` (to pull in
 [buildtools](git://github.com/Steveice10/buildtools)) and `make` and you should
 be good.
 
+If you are running nightly Luma3DS, you can run `make LUMA_NIGHTLY=1` to get
+sane defaults.
+
 ##  Set up
 
-If you use Luma3DS you can just select "Titles" and make your changes.
-Otherwise, you can choose from the list in the app or write your own custom
-directory to /locales.conf
+If you use Luma3DS and downloaded the appropriate verison (*nightly* or
+*stable*) you can just select "Titles" and make your changes.  Otherwise, you
+can choose from the list in the app or write your own custom path to
+/locales.conf
 
 ## Known Limitations
 
@@ -61,11 +73,12 @@ feature in [Luma3DS](https://github.com/AuroraWright/Luma3DS/).
 ### Contributors
 
 * [Possum](https://github.com/Possum) - project maintainer
-* CouldBeWolf - beta tester
+* CouldBeWolf - beta tester, bug reports
+* ericjwg - patches, testing, and building
 
-Also thanks to the 3DS homebrew/CFW community.
+As always, big thanks to the 3DS homebrew/CFW community!
 
 ## License
 
 This software is provided under the MIT license. Please see LICENSE.txt for full
-details fo the license.
+details for the license.
