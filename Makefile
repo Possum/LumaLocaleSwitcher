@@ -58,3 +58,17 @@ ICON := meta/icon.png
 # INTERNAL #
 
 include buildtools/make_base
+
+3DS_IP     := CHANGEME
+3DS_PORT   := 5000
+SERVEFILES := servefiles.py
+
+network_install: output/LumaLocaleSwitcher-$(VERSION).cia
+	$(SERVEFILES) $(3DS_IP) output/LumaLocaleSwitcher-$(VERSION).cia
+
+QRENCODE     := qrencode
+PROJECT_NAME := LumaLocaleSwitcher
+qrencode:
+	$(QRENCODE) -o qr/$(VERSION).png https://github.com/$(AUTHOR)/$(PROJECT_NAME)/releases/download/$(VERSION)/LumaLocaleSwitcher-$(VERSION).cia
+	rm qr/latest.png
+	ln -s $(VERSION).png qr/latest.png
