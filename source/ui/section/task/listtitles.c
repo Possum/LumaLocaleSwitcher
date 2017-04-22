@@ -19,6 +19,7 @@ typedef struct {
     list_item* items;
     u32* count;
     u32 max;
+    bool showAll;
 
     Handle cancelEvent;
 } populate_titles_data;
@@ -62,7 +63,7 @@ Result populate_locales() {
     ll_next = ll_head;
 
     char locale_path[PATH_MAX];
-    util_get_locale_path(locale_path, PATH_MAX);
+    util_get_locale_dir(locale_path, PATH_MAX);
 
     FS_Archive sdmc_archive;
 
@@ -366,6 +367,8 @@ static Result task_populate_titles_from(populate_titles_data* data, FS_MediaType
         return 0;
     }
 
+    if (mediaType == MEDIATYPE_NAND && !data->showAll) return 0;
+
     Result res = 0;
 
     if(mediaType != MEDIATYPE_GAME_CARD || type == CARD_CTR) {
@@ -438,7 +441,7 @@ void task_clear_titles(list_item* items, u32* count) {
     }
 }
 
-Handle task_populate_titles(list_item* items, u32* count, u32 max) {
+Handle task_populate_titles(list_item* items, u32* count, u32 max, bool showAll) {
     if(items == NULL || count == NULL || max == 0) {
         return 0;
     }
@@ -456,6 +459,7 @@ Handle task_populate_titles(list_item* items, u32* count, u32 max) {
     data->items = items;
     data->count = count;
     data->max = max;
+    data->showAll = showAll;
 
     Result eventRes = svcCreateEvent(&data->cancelEvent, 1);
     if(R_FAILED(eventRes)) {

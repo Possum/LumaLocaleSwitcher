@@ -15,6 +15,7 @@ typedef struct {
     u32 count;
     Handle cancelEvent;
     bool populated;
+    bool showAll;
 } titles_data;
 
 
@@ -138,7 +139,26 @@ static void titles_update(ui_view* view, void* data, list_item** items, u32** it
             listData->cancelEvent = 0;
         }
 
-        listData->cancelEvent = task_populate_titles(listData->items, &listData->count, TITLES_MAX);
+        listData->cancelEvent = task_populate_titles(listData->items, &listData->count, TITLES_MAX, listData->showAll);
+        listData->populated = true;
+    }
+
+    if(hidKeysDown() & KEY_Y) {
+        if(listData->cancelEvent != 0) {
+            svcSignalEvent(listData->cancelEvent);
+            while(svcWaitSynchronization(listData->cancelEvent, 0) == 0) {
+                svcSleepThread(1000000);
+            }
+
+            listData->cancelEvent = 0;
+        }
+
+        listData->showAll = !listData->showAll;
+        if (listData->showAll)
+            view->info = "A: Select, B: Return, X: Refresh, Y: Hide NAND";
+        else
+            view->info = "A: Select, B: Return, X: Refresh, Y: Show All";
+        listData->cancelEvent = task_populate_titles(listData->items, &listData->count, TITLES_MAX, listData->showAll);
         listData->populated = true;
     }
 
@@ -161,5 +181,6 @@ void titles_open() {
         return;
     }
 
-    list_display("Titles", "A: Select, B: Return, X: Refresh", data, titles_update, titles_draw_top);
+    list_display("Titles", "A: Select, B: Return, X: Refresh, Y: Show All",
+            data, titles_update, titles_draw_top);
 }

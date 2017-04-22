@@ -145,4 +145,4 @@ void task_clear_tickets(list_item* items, u32* count);
 Handle task_populate_tickets(list_item* items, u32* count, u32 max);
 
 void task_clear_titles(list_item* items, u32* count);
-Handle task_populate_titles(list_item* items, u32* count, u32 max);
+Handle task_populate_titles(list_item* items, u32* count, u32 max, bool showAll);
