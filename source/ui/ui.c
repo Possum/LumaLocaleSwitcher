@@ -113,7 +113,7 @@ static void ui_draw_top(ui_view* ui) {
     float timeTextWidth;
     float timeTextHeight;
     screen_get_string_size(&timeTextWidth, &timeTextHeight, timeText, 0.5f, 0.5f);
-    screen_draw_string(timeText, topScreenTopBarX + (topScreenTopBarWidth - timeTextWidth) / 2, topScreenTopBarY + (topScreenTopBarHeight - timeTextHeight) / 2, 0.5f, 0.5f, COLOR_TEXT, false);
+    screen_draw_string(timeText, topScreenTopBarX + (topScreenTopBarWidth - timeTextWidth) / 2, topScreenTopBarY, 0.5f, 0.5f, COLOR_TEXT, false);
 
     u32 batteryIcon = 0;
     u8 batteryChargeState = 0;
