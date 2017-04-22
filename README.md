@@ -11,13 +11,13 @@ Install the .cia file using a CIA installer such as
 If you are using the latest *stable* version of Luma3DS (6.6 at this time), scan
 the QR code below for the latest release (0.03):
 
-![QR](https://raw.githubusercontent.com/Possum/LumaLocaleSwitcher/master/qr/0.03.png)
+![QR](https://raw.githubusercontent.com/Possum/LumaLocaleSwitcher/master/qr/0.04.png)
 
 If you are using the *nightly* version of Luma3DS (or any version newer than
 6.6), scan the QR code below for the latest nightly compatible release
 (0.03-NIGHTLY):
 
-![QR](https://raw.githubusercontent.com/Possum/LumaLocaleSwitcher/master/qr/0.03-NIGHTLY.png)
+![QR](https://raw.githubusercontent.com/Possum/LumaLocaleSwitcher/master/qr/0.04-NIGHTLY.png)
 
 
 ## Compiling
