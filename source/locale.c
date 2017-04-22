@@ -82,8 +82,13 @@ Locale* locale_for_title(u64 titleId) {
     }
 
     Handle handle;
-    FS_Path* fs_path = util_make_path_utf8(locale_path_for_title(titleId));
-    FSUSER_OpenFileDirectly(&handle, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY,""), *fs_path, FS_OPEN_READ, 0); // TODO error handling?
+    char* path = locale_path_for_title(titleId);
+    FS_Path* fs_path = util_make_path_utf8(path);
+    if(R_FAILED(res = FSUSER_OpenFileDirectly(&handle, ARCHIVE_SDMC, fsMakePath(PATH_EMPTY,""), *fs_path, FS_OPEN_READ, 0))) {
+        free(fs_path);
+        free(path);
+        return locale_info;
+    }
 
     char* buffer = (char*) calloc(7, sizeof(char)); // ex., "JPN JP\0"
     u32 bytes_read;
@@ -91,6 +96,7 @@ Locale* locale_for_title(u64 titleId) {
     FSFILE_Close(handle);
 
     util_free_path_utf8(fs_path);
+    free(path);
 
     FSUSER_CloseArchive(sdmc_archive);
 
