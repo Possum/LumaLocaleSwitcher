@@ -69,6 +69,6 @@ network_install: output/LumaLocaleSwitcher-$(VERSION).cia
 QRENCODE     := qrencode
 PROJECT_NAME := LumaLocaleSwitcher
 qrencode:
-	$(QRENCODE) -o qr/$(VERSION).png https://github.com/$(AUTHOR)/$(PROJECT_NAME)/releases/download/$(VERSION)/LumaLocaleSwitcher-$(VERSION).cia
+	$(QRENCODE) -s 5 -o qr/$(VERSION).png https://github.com/$(AUTHOR)/$(PROJECT_NAME)/releases/download/$(VERSION)/LumaLocaleSwitcher-$(VERSION).cia
 	rm qr/latest.png
 	ln -s $(VERSION).png qr/latest.png
