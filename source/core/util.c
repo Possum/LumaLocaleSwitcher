@@ -222,7 +222,7 @@ Result util_get_locale_path(char* out, size_t size) {
 #ifdef LUMA_NIGHTLY
     char* fallback = "/luma/titles/%s/locale.txt";
 #else
-    char* fallback = "/luma/%s.txt";
+    char* fallback = "/luma/locales/%s.txt";
 #endif
     strncpy(out, fallback, strlen(fallback));
     out[strlen(fallback)] = '\0';
