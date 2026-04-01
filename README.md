@@ -3,6 +3,10 @@
 LumaLocaleSwitcher can be used to manage per-title locales for Luma3ds (and
 compatible forks such as SaltFW).
 
+## Status: Legacy / Archived.
+
+This project is no longer maintained. It remains here as a historical reference for the 3DS homebrew community.
+
 ## Installation
 
 Install the .cia file using a CIA installer such as
